@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/cyberpunk_theme.dart';
 import '../../../../core/habit_palette.dart';
 import '../../domain/entities/habit.dart';
 
@@ -55,160 +56,165 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
         title: Text(
           widget.initialTitle == null ? 'Новая привычка' : 'Изменить привычку',
         ),
+        actions: const [
+          ThemeModeToggleButton(),
+        ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _titleController,
-            textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              labelText: 'Название',
-              hintText: 'Например: Выпить воду',
+      body: CyberpunkBackground(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            TextField(
+              controller: _titleController,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                labelText: 'Название',
+                hintText: 'Например: Выпить воду',
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Цвет карточки',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: habitColorOptions.map((option) {
-              final isSelected = option.value == _selectedColorValue;
-              return InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () {
-                  setState(() {
-                    _selectedColorValue = option.value;
-                  });
-                },
-                child: Container(
-                  width: 96,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: habitColorFromValue(option.value).withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isSelected
-                          ? habitColorFromValue(option.value)
-                          : Colors.grey.shade300,
-                      width: isSelected ? 2 : 1,
+            const SizedBox(height: 24),
+            Text(
+              'Цвет карточки',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: habitColorOptions.map((option) {
+                final isSelected = option.value == _selectedColorValue;
+                return InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    setState(() {
+                      _selectedColorValue = option.value;
+                    });
+                  },
+                  child: Container(
+                    width: 96,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: habitColorFromValue(option.value).withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? habitColorFromValue(option.value)
+                            : Colors.grey.shade300,
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: habitColorFromValue(option.value),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          option.name,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
+                );
+              }).toList(growable: false),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Цель выполнения',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: selectedColor.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: selectedColor.withValues(alpha: 0.30)),
+              ),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: habitColorFromValue(option.value),
-                          shape: BoxShape.circle,
+                      IconButton(
+                        onPressed: _targetCount > 1
+                            ? () {
+                                setState(() {
+                                  _targetCount -= 1;
+                                });
+                              }
+                            : null,
+                        icon: const Icon(Icons.remove_circle_outline),
+                      ),
+                      Expanded(
+                        child: Text(
+                          '$_targetCount раз',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        option.name,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12),
+                      IconButton(
+                        onPressed: _targetCount < _maxTargetFor(_targetPeriod)
+                            ? () {
+                                setState(() {
+                                  _targetCount += 1;
+                                });
+                              }
+                            : null,
+                        icon: const Icon(Icons.add_circle_outline),
                       ),
                     ],
                   ),
-                ),
-              );
-            }).toList(growable: false),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Цель выполнения',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: selectedColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: selectedColor.withValues(alpha: 0.30)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: _targetCount > 1
-                          ? () {
-                              setState(() {
-                                _targetCount -= 1;
-                              });
-                            }
-                          : null,
-                      icon: const Icon(Icons.remove_circle_outline),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '$_targetCount раз',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall,
+                  const SizedBox(height: 12),
+                  SegmentedButton<HabitGoalPeriod>(
+                    segments: const [
+                      ButtonSegment<HabitGoalPeriod>(
+                        value: HabitGoalPeriod.week,
+                        label: Text('Неделя'),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: _targetCount < _maxTargetFor(_targetPeriod)
-                          ? () {
-                              setState(() {
-                                _targetCount += 1;
-                              });
-                            }
-                          : null,
-                      icon: const Icon(Icons.add_circle_outline),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SegmentedButton<HabitGoalPeriod>(
-                  segments: const [
-                    ButtonSegment<HabitGoalPeriod>(
-                      value: HabitGoalPeriod.week,
-                      label: Text('Неделя'),
-                    ),
-                    ButtonSegment<HabitGoalPeriod>(
-                      value: HabitGoalPeriod.month,
-                      label: Text('Месяц'),
-                    ),
-                    ButtonSegment<HabitGoalPeriod>(
-                      value: HabitGoalPeriod.year,
-                      label: Text('Год'),
-                    ),
-                  ],
-                  selected: <HabitGoalPeriod>{_targetPeriod},
-                  onSelectionChanged: (selection) {
-                    setState(() {
-                      _targetPeriod = selection.first;
-                      final maxTarget = _maxTargetFor(_targetPeriod);
-                      if (_targetCount > maxTarget) {
-                        _targetCount = maxTarget;
-                      }
-                    });
-                  },
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Цель: $_targetCount раз ${_targetPeriod.label}',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Максимум: ${_maxTargetFor(_targetPeriod)} раз ${_targetPeriod.label}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black54,
+                      ButtonSegment<HabitGoalPeriod>(
+                        value: HabitGoalPeriod.month,
+                        label: Text('Месяц'),
                       ),
-                ),
-              ],
+                      ButtonSegment<HabitGoalPeriod>(
+                        value: HabitGoalPeriod.year,
+                        label: Text('Год'),
+                      ),
+                    ],
+                    selected: <HabitGoalPeriod>{_targetPeriod},
+                    onSelectionChanged: (selection) {
+                      setState(() {
+                        _targetPeriod = selection.first;
+                        final maxTarget = _maxTargetFor(_targetPeriod);
+                        if (_targetCount > maxTarget) {
+                          _targetCount = maxTarget;
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Цель: $_targetCount раз ${_targetPeriod.label}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Максимум: ${_maxTargetFor(_targetPeriod)} раз ${_targetPeriod.label}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+                        ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),

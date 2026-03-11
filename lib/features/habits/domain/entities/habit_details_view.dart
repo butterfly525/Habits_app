@@ -6,10 +6,12 @@ class HabitDetailsView {
   const HabitDetailsView({
     required this.habit,
     required this.completions,
+    required this.allCompletions,
     required this.statCards,
   });
 
   final Habit habit;
   final List<HabitCompletion> completions;
+  final List<HabitCompletion> allCompletions;
   final List<StatCard> statCards;
 }

@@ -38,5 +38,10 @@ abstract class HabitsRepository {
 
   Future<List<StatCard>> getStatCards(int habitId);
   Future<StatCard?> addStatCard(int habitId);
+  Future<void> updateStatCard({
+    required int cardId,
+    required StatCardType type,
+    String? noteText,
+  });
   Future<void> removeLastStatCard(int habitId);
 }

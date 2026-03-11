@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../../../../core/date_only.dart';
 import '../../../domain/entities/habit.dart';
+import '../../../domain/entities/stat_card.dart';
 import '../../models/habit_completion_model.dart';
 import '../../models/habit_model.dart';
 import '../../models/stat_card_model.dart';
@@ -89,6 +90,18 @@ class HabitsLocalDataSource {
     return rows.map(HabitCompletionModel.fromMap).toList();
   }
 
+  Future<List<HabitCompletionModel>> getHabitCompletions(int habitId) async {
+    final db = await _db;
+    final rows = await db.query(
+      'habit_completions',
+      where: 'habit_id = ?',
+      whereArgs: [habitId],
+      orderBy: 'date ASC',
+    );
+
+    return rows.map(HabitCompletionModel.fromMap).toList();
+  }
+
   Future<void> toggleCompletion({
     required int habitId,
     required DateTime date,
@@ -156,6 +169,8 @@ class HabitsLocalDataSource {
     final id = await db.insert('stat_cards', {
       'habit_id': habitId,
       'position': count,
+      'type': StatCardType.empty.dbValue,
+      'note_text': '',
       'created_at': now,
       'updated_at': now,
     });
@@ -164,8 +179,30 @@ class HabitsLocalDataSource {
       id: id,
       habitId: habitId,
       position: count,
+      type: StatCardType.empty,
+      noteText: '',
       createdAt: DateTime.parse(now),
       updatedAt: DateTime.parse(now),
+    );
+  }
+
+  Future<void> updateStatCard({
+    required int cardId,
+    required StatCardType type,
+    String? noteText,
+  }) async {
+    final db = await _db;
+    final now = DateTime.now().toIso8601String();
+
+    await db.update(
+      'stat_cards',
+      {
+        'type': type.dbValue,
+        'note_text': noteText ?? '',
+        'updated_at': now,
+      },
+      where: 'id = ?',
+      whereArgs: [cardId],
     );
   }
 

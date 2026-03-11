@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'core/cyberpunk_theme.dart';
 import 'features/habits/presentation/screens/home_screen.dart';
 
 void main() {
@@ -28,18 +29,19 @@ void _configureDatabaseFactory() {
   databaseFactory = databaseFactoryFfi;
 }
 
-class HabitsApp extends StatelessWidget {
+class HabitsApp extends ConsumerWidget {
   const HabitsApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
       title: 'Habits App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
+      theme: buildCyberpunkLightTheme(),
+      darkTheme: buildCyberpunkDarkTheme(),
+      themeMode: themeMode,
       home: const HomeScreen(),
     );
   }

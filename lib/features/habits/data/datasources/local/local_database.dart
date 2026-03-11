@@ -17,7 +17,7 @@ class LocalDatabase {
 
     _database = await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE habits (
@@ -48,6 +48,8 @@ class LocalDatabase {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             habit_id INTEGER NOT NULL,
             position INTEGER NOT NULL,
+            type TEXT NOT NULL,
+            note_text TEXT NOT NULL,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
             FOREIGN KEY(habit_id) REFERENCES habits(id) ON DELETE CASCADE
@@ -71,6 +73,14 @@ class LocalDatabase {
           );
           await db.execute(
             "ALTER TABLE habits ADD COLUMN target_period TEXT NOT NULL DEFAULT 'week'",
+          );
+        }
+        if (oldVersion < 3) {
+          await db.execute(
+            "ALTER TABLE stat_cards ADD COLUMN type TEXT NOT NULL DEFAULT 'empty'",
+          );
+          await db.execute(
+            "ALTER TABLE stat_cards ADD COLUMN note_text TEXT NOT NULL DEFAULT ''",
           );
         }
       },

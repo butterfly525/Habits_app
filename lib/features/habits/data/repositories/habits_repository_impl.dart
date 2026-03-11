@@ -64,11 +64,13 @@ class HabitsRepositoryImpl implements HabitsRepository {
       habitId: habitId,
       month: month,
     );
+    final allCompletions = await _local.getHabitCompletions(habitId);
     final statCards = await getStatCards(habitId);
 
     return HabitDetailsView(
       habit: habit,
       completions: completions,
+      allCompletions: allCompletions.map((item) => item.toEntity()).toList(),
       statCards: statCards,
     );
   }
@@ -157,6 +159,20 @@ class HabitsRepositoryImpl implements HabitsRepository {
     final created = await _local.addStatCard(habitId);
     await _remote.pushDirtyChanges();
     return created?.toEntity();
+  }
+
+  @override
+  Future<void> updateStatCard({
+    required int cardId,
+    required StatCardType type,
+    String? noteText,
+  }) async {
+    await _local.updateStatCard(
+      cardId: cardId,
+      type: type,
+      noteText: noteText,
+    );
+    await _remote.pushDirtyChanges();
   }
 
   @override

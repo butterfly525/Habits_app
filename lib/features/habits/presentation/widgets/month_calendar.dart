@@ -68,7 +68,7 @@ class MonthCalendar extends StatelessWidget {
                       : isDone
                           ? accentColor.withValues(alpha: 0.85)
                           : Colors.white,
-                  borderRadius: BorderRadius.circular(10),
+                  shape: BoxShape.circle,
                   border: Border.all(
                     width: isToday ? 2 : 1,
                     color: isToday

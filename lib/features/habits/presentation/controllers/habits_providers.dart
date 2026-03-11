@@ -8,6 +8,7 @@ import '../../data/repositories/habits_repository_impl.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_details_view.dart';
 import '../../domain/entities/habit_week_view.dart';
+import '../../domain/entities/stat_card.dart';
 import '../../domain/repositories/habits_repository.dart';
 
 final selectedWeekAnchorProvider = StateProvider<DateTime>((ref) {
@@ -105,6 +106,19 @@ class HabitsActions {
 
   Future<void> addStatCard(int habitId) async {
     await _ref.read(habitsRepositoryProvider).addStatCard(habitId);
+    _invalidate();
+  }
+
+  Future<void> updateStatCard({
+    required int cardId,
+    required StatCardType type,
+    String? noteText,
+  }) async {
+    await _ref.read(habitsRepositoryProvider).updateStatCard(
+          cardId: cardId,
+          type: type,
+          noteText: noteText,
+        );
     _invalidate();
   }
 
