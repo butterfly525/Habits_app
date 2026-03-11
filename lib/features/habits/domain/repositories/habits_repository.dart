@@ -19,6 +19,7 @@ abstract class HabitsRepository {
     required int targetCount,
     required HabitGoalPeriod targetPeriod,
   });
+  Future<void> deleteHabit(int habitId);
   Future<List<HabitWeekView>> getHabitsForWeek(DateTime anchorDate);
 
   Future<List<HabitCompletion>> getCompletionsForHabitMonth({

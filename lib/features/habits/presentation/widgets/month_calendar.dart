@@ -21,19 +21,21 @@ class MonthCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     final days = _daysForGrid(month);
     final today = dayOnly(DateTime.now());
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       children: [
         const Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text('Mon'),
-            Text('Tue'),
-            Text('Wed'),
-            Text('Thu'),
-            Text('Fri'),
-            Text('Sat'),
-            Text('Sun'),
+            Text('Пн'),
+            Text('Вт'),
+            Text('Ср'),
+            Text('Чт'),
+            Text('Пт'),
+            Text('Сб'),
+            Text('Вс'),
           ],
         ),
         const SizedBox(height: 8),
@@ -57,33 +59,39 @@ class MonthCalendar extends StatelessWidget {
             final inCurrentMonth = day.month == month.month;
             final isDone = completedDates.contains(key);
             final isToday = dayOnly(day) == today;
+            final isFuture = dayOnly(day).isAfter(today);
 
             return GestureDetector(
-              onTap: () => onToggle(day),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                decoration: BoxDecoration(
-                  color: !inCurrentMonth
-                      ? Colors.grey.shade100
-                      : isDone
-                          ? accentColor.withValues(alpha: 0.85)
-                          : Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    width: isToday ? 2 : 1,
-                    color: isToday
-                        ? Colors.blue.shade700
+              onTap: isFuture ? null : () => onToggle(day),
+              child: Opacity(
+                opacity: isFuture ? 0.45 : 1,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 120),
+                  decoration: BoxDecoration(
+                    color: !inCurrentMonth
+                        ? scheme.surface.withValues(alpha: isDark ? 0.32 : 0.72)
                         : isDone
-                            ? accentColor
-                            : Colors.grey.shade400,
+                            ? accentColor.withValues(alpha: 0.85)
+                            : scheme.surface.withValues(alpha: isDark ? 0.62 : 0.88),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      width: isToday ? 2 : 1,
+                      color: isToday
+                          ? scheme.primary
+                          : isDone
+                              ? accentColor
+                              : scheme.outline.withValues(alpha: 0.6),
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Text(
-                    DateFormat.d().format(day),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: inCurrentMonth ? Colors.black87 : Colors.grey,
+                  child: Center(
+                    child: Text(
+                      DateFormat.d().format(day),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: inCurrentMonth
+                            ? scheme.onSurface
+                            : scheme.onSurface.withValues(alpha: 0.46),
+                      ),
                     ),
                   ),
                 ),

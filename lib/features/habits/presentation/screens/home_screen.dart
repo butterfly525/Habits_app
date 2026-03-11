@@ -16,6 +16,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final habitsAsync = ref.watch(habitsWeekProvider);
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -71,6 +72,7 @@ class HomeScreen extends ConsumerWidget {
                                   item.habit.title,
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.w700,
+                                        color: scheme.onSurface,
                                       ),
                                 ),
                                 const SizedBox(height: 8),
@@ -87,7 +89,9 @@ class HomeScreen extends ConsumerWidget {
                                     const SizedBox(width: 8),
                                     Text(
                                       '${item.currentPeriodCompletedCount}/${item.habit.targetCount} ${item.habit.targetPeriod.label}',
-                                      style: Theme.of(context).textTheme.bodyMedium,
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            color: scheme.onSurface.withValues(alpha: 0.92),
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -126,7 +130,7 @@ class HomeScreen extends ConsumerWidget {
             ),
           );
 
-          if (settings != null) {
+          if (settings != null && settings.action == HabitSettingsAction.save) {
             await ref.read(habitsActionsProvider).addHabit(
                   title: settings.title,
                   colorValue: settings.colorValue,

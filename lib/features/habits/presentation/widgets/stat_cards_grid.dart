@@ -34,9 +34,9 @@ class StatCardsGrid extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final titleColor = isDark ? const Color(0xFFF6F0FF) : const Color(0xFF4A1030);
-    final valueColor = isDark ? const Color(0xFFE9F7FF) : const Color(0xFF24112E);
-    final subtitleColor = isDark ? const Color(0xFFB9B2D9) : const Color(0xFF6E5A73);
+    final titleColor = scheme.onSurface;
+    final valueColor = scheme.onSurface;
+    final subtitleColor = scheme.onSurface.withValues(alpha: isDark ? 0.74 : 0.62);
     const spacing = 8.0;
     const cardHeight = 188.0;
     final width = MediaQuery.sizeOf(context).width;
@@ -115,12 +115,11 @@ class StatCardsGrid extends StatelessWidget {
                                   ),
                                   labelStyle: TextStyle(
                                     color: isSelected
-                                        ? (isDark ? const Color(0xFF12081C) : Colors.white)
+                                        ? scheme.onPrimary
                                         : valueColor,
                                     fontWeight: FontWeight.w600,
                                   ),
-                                  selectedColor:
-                                      isDark ? const Color(0xFF00F6FF) : const Color(0xFF4A1030),
+                                  selectedColor: scheme.primary,
                                   side: BorderSide(
                                     color: isDark
                                         ? const Color(0x6600F6FF)

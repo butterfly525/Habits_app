@@ -74,6 +74,15 @@ class HabitsLocalDataSource {
     );
   }
 
+  Future<void> deleteHabit(int habitId) async {
+    final db = await _db;
+    await db.delete(
+      'habits',
+      where: 'id = ?',
+      whereArgs: [habitId],
+    );
+  }
+
   Future<List<HabitCompletionModel>> getHabitCompletionsInRange({
     required int habitId,
     required DateTime from,
@@ -106,6 +115,10 @@ class HabitsLocalDataSource {
     required int habitId,
     required DateTime date,
   }) async {
+    if (dayOnly(date).isAfter(dayOnly(DateTime.now()))) {
+      return;
+    }
+
     final db = await _db;
     final key = toDateKey(date);
     final now = DateTime.now().toIso8601String();

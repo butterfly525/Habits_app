@@ -54,6 +54,12 @@ class HabitsRepositoryImpl implements HabitsRepository {
   }
 
   @override
+  Future<void> deleteHabit(int habitId) async {
+    await _local.deleteHabit(habitId);
+    await _remote.pushDirtyChanges();
+  }
+
+  @override
   Future<HabitDetailsView> getHabitDetails({
     required int habitId,
     required DateTime month,

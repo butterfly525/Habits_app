@@ -62,7 +62,10 @@ ThemeData buildCyberpunkLightTheme() {
         side: const BorderSide(color: Color(0x5500BCD4)),
       ),
     ),
-    textTheme: base.textTheme.copyWith(
+    textTheme: base.textTheme.apply(
+      bodyColor: scheme.onSurface,
+      displayColor: scheme.onSurface,
+    ).copyWith(
       headlineSmall: base.textTheme.headlineSmall?.copyWith(
         fontWeight: FontWeight.w800,
         letterSpacing: 0.6,
@@ -72,6 +75,7 @@ ThemeData buildCyberpunkLightTheme() {
         letterSpacing: 0.5,
       ),
       bodyMedium: base.textTheme.bodyMedium?.copyWith(
+        color: scheme.onSurface,
         height: 1.3,
       ),
     ),
@@ -203,35 +207,38 @@ class CyberpunkBackground extends StatelessWidget {
                 ],
         ),
       ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _GridPainter(
-                lineColor: isDark
-                    ? const Color(0x2200F6FF)
-                    : const Color(0x2200BCD4),
+      child: SizedBox.expand(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _GridPainter(
+                  lineColor: isDark
+                      ? const Color(0x2200F6FF)
+                      : const Color(0x2200BCD4),
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: -80,
-            right: -40,
-            child: _GlowOrb(
-              color: isDark ? const Color(0x33FF4FD8) : const Color(0x44FF2A6D),
-              size: 240,
+            Positioned(
+              top: -80,
+              right: -40,
+              child: _GlowOrb(
+                color: isDark ? const Color(0x33FF4FD8) : const Color(0x44FF2A6D),
+                size: 240,
+              ),
             ),
-          ),
-          Positioned(
-            bottom: -90,
-            left: -50,
-            child: _GlowOrb(
-              color: isDark ? const Color(0x3300F6FF) : const Color(0x4400BCD4),
-              size: 260,
+            Positioned(
+              bottom: -90,
+              left: -50,
+              child: _GlowOrb(
+                color: isDark ? const Color(0x3300F6FF) : const Color(0x4400BCD4),
+                size: 260,
+              ),
             ),
-          ),
-          child,
-        ],
+            child,
+          ],
+        ),
       ),
     );
   }

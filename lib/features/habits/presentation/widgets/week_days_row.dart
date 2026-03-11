@@ -63,22 +63,28 @@ class _DayCell extends StatelessWidget {
     final key = toDateKey(day);
     final isDone = completedDates.contains(key);
     final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+    final isToday = dayOnly(day) == dayOnly(DateTime.now());
+    final isFuture = dayOnly(day).isAfter(dayOnly(DateTime.now()));
     final baseBackground = isDarkTheme ? const Color(0xFF1A1330) : Colors.grey.shade200;
     final baseBorder = isDarkTheme ? const Color(0x6630F7FF) : Colors.grey.shade400;
+    final todayBorder = Theme.of(context).colorScheme.primary;
     final textColor = isDone
         ? (accentColor.computeLuminance() > 0.5 ? const Color(0xFF111111) : Colors.white)
         : (isDarkTheme ? const Color(0xFFF3EFFF) : const Color(0xFF24112E));
 
     return GestureDetector(
-      onTap: () => onToggle(day),
-      child: Container(
+      onTap: isFuture ? null : () => onToggle(day),
+      child: Opacity(
+        opacity: isFuture ? 0.45 : 1,
+        child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
           color: isDone ? accentColor.withValues(alpha: 0.85) : baseBackground,
           shape: BoxShape.circle,
           border: Border.all(
-            color: isDone ? accentColor : baseBorder,
+            width: isToday ? 2 : 1,
+            color: isToday ? todayBorder : (isDone ? accentColor : baseBorder),
           ),
         ),
         child: Column(
@@ -93,6 +99,7 @@ class _DayCell extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

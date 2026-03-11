@@ -4,8 +4,16 @@ import '../../../../core/cyberpunk_theme.dart';
 import '../../../../core/habit_palette.dart';
 import '../../domain/entities/habit.dart';
 
+enum HabitSettingsAction { save, delete }
+
 typedef HabitSettingsResult =
-    ({String title, int colorValue, int targetCount, HabitGoalPeriod targetPeriod});
+    ({
+      HabitSettingsAction action,
+      String title,
+      int colorValue,
+      int targetCount,
+      HabitGoalPeriod targetPeriod,
+    });
 
 class HabitSettingsScreen extends StatefulWidget {
   const HabitSettingsScreen({
@@ -50,6 +58,8 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedColor = habitColorFromValue(_selectedColorValue);
+    final scheme = Theme.of(context).colorScheme;
+    final availableCounts = List<int>.generate(_maxTargetFor(_targetPeriod), (index) => index + 1);
 
     return Scaffold(
       appBar: AppBar(
@@ -117,7 +127,10 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
                         Text(
                           option.name,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 12),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.onSurface,
+                          ),
                         ),
                       ],
                     ),
@@ -142,32 +155,29 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        onPressed: _targetCount > 1
-                            ? () {
-                                setState(() {
-                                  _targetCount -= 1;
-                                });
-                              }
-                            : null,
-                        icon: const Icon(Icons.remove_circle_outline),
-                      ),
                       Expanded(
-                        child: Text(
-                          '$_targetCount раз',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineSmall,
+                        child: DropdownButtonFormField<int>(
+                          initialValue: _targetCount,
+                          decoration: const InputDecoration(
+                            labelText: 'Количество дней',
+                          ),
+                          items: availableCounts
+                              .map(
+                                (count) => DropdownMenuItem<int>(
+                                  value: count,
+                                  child: Text('$count'),
+                                ),
+                              )
+                              .toList(growable: false),
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+                            setState(() {
+                              _targetCount = value;
+                            });
+                          },
                         ),
-                      ),
-                      IconButton(
-                        onPressed: _targetCount < _maxTargetFor(_targetPeriod)
-                            ? () {
-                                setState(() {
-                                  _targetCount += 1;
-                                });
-                              }
-                            : null,
-                        icon: const Icon(Icons.add_circle_outline),
                       ),
                     ],
                   ),
@@ -207,7 +217,7 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
                   Text(
                     'Максимум: ${_maxTargetFor(_targetPeriod)} раз ${_targetPeriod.label}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+                          color: scheme.onSurface.withValues(alpha: 0.72),
                         ),
                   ),
                 ],
@@ -218,11 +228,27 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
       ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: FilledButton(
-          onPressed: _save,
-          child: Text(
-            widget.initialTitle == null ? 'Создать привычку' : 'Сохранить изменения',
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FilledButton(
+              onPressed: _save,
+              child: Text(
+                widget.initialTitle == null ? 'Создать привычку' : 'Сохранить изменения',
+              ),
+            ),
+            if (widget.initialTitle != null) ...[
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: _delete,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                  side: BorderSide(color: Theme.of(context).colorScheme.error),
+                ),
+                child: const Text('Удалить привычку'),
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -251,7 +277,20 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
 
     Navigator.of(context).pop(
       (
+        action: HabitSettingsAction.save,
         title: title,
+        colorValue: _selectedColorValue,
+        targetCount: _targetCount,
+        targetPeriod: _targetPeriod,
+      ),
+    );
+  }
+
+  void _delete() {
+    Navigator.of(context).pop(
+      (
+        action: HabitSettingsAction.delete,
+        title: _titleController.text.trim(),
         colorValue: _selectedColorValue,
         targetCount: _targetCount,
         targetPeriod: _targetPeriod,

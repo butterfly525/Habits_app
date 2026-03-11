@@ -54,98 +54,146 @@ class _HabitDetailsScreenState extends ConsumerState<HabitDetailsScreen> {
     });
     final visibleDetails = detailsAsync.valueOrNull ?? _cachedDetails;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Привычка'),
-        actions: [
-          const ThemeModeToggleButton(),
-          if (visibleDetails != null)
-            TextButton(
-              onPressed: () async {
-                final details = visibleDetails;
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Привычка'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Календарь'),
+              Tab(text: 'Статистика'),
+            ],
+          ),
+          actions: [
+            const ThemeModeToggleButton(),
+            if (visibleDetails != null)
+              TextButton(
+                onPressed: () async {
+                  final details = visibleDetails;
+                  final navigator = Navigator.of(context);
 
-                final settings = await Navigator.of(context).push<HabitSettingsResult>(
-                  MaterialPageRoute<HabitSettingsResult>(
-                    builder: (_) => HabitSettingsScreen(
-                      initialTitle: details.habit.title,
-                      initialColorValue: details.habit.colorValue,
-                      initialTargetCount: details.habit.targetCount,
-                      initialTargetPeriod: details.habit.targetPeriod,
+                  final settings = await navigator.push<HabitSettingsResult>(
+                    MaterialPageRoute<HabitSettingsResult>(
+                      builder: (_) => HabitSettingsScreen(
+                        initialTitle: details.habit.title,
+                        initialColorValue: details.habit.colorValue,
+                        initialTargetCount: details.habit.targetCount,
+                        initialTargetPeriod: details.habit.targetPeriod,
+                      ),
                     ),
-                  ),
-                );
+                  );
 
-                if (settings == null) {
-                  return;
-                }
+                  if (settings == null) {
+                    return;
+                  }
 
-                await ref.read(habitsActionsProvider).updateHabit(
-                      habitId: widget.habitId,
-                      title: settings.title,
-                      colorValue: settings.colorValue,
-                      targetCount: settings.targetCount,
-                      targetPeriod: settings.targetPeriod,
-                    );
-              },
-              child: const Text('Изменить'),
-            ),
-        ],
-      ),
-      body: CyberpunkBackground(
-        child: visibleDetails == null
-            ? detailsAsync.when(
-                data: (_) => const SizedBox.shrink(),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, _) => Center(child: Text('Ошибка: $error')),
-              )
-            : _buildDetailsContent(context, visibleDetails),
+                  if (settings.action == HabitSettingsAction.delete) {
+                    await ref.read(habitsActionsProvider).deleteHabit(widget.habitId);
+                    if (!mounted) {
+                      return;
+                    }
+                    navigator.pop();
+                    return;
+                  }
+
+                  await ref.read(habitsActionsProvider).updateHabit(
+                        habitId: widget.habitId,
+                        title: settings.title,
+                        colorValue: settings.colorValue,
+                        targetCount: settings.targetCount,
+                        targetPeriod: settings.targetPeriod,
+                      );
+                },
+                child: const Text('Изменить'),
+              ),
+          ],
+        ),
+        body: CyberpunkBackground(
+          child: visibleDetails == null
+              ? detailsAsync.when(
+                  data: (_) => const SizedBox.shrink(),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, _) => Center(child: Text('Ошибка: $error')),
+                )
+              : _buildDetailsContent(context, visibleDetails),
+        ),
       ),
     );
   }
 
   Widget _buildDetailsContent(BuildContext context, HabitDetailsView details) {
+    final scheme = Theme.of(context).colorScheme;
     final completed = details.completions
         .where((item) => item.isCompleted)
         .map((item) => toDateKey(item.date))
         .toSet();
     final color = habitColorFromValue(details.habit.colorValue);
 
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                details.habit.title,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: color.withValues(alpha: 0.35)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Цель: ${details.habit.targetCount} раз ${details.habit.targetPeriod.label}',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: scheme.onSurface,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            children: [
+              _buildCalendarTab(details, completed, color),
+              _buildStatsTab(context, details, scheme),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCalendarTab(
+    HabitDetailsView details,
+    Set<String> completed,
+    Color color,
+  ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            details.habit.title,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: color.withValues(alpha: 0.35)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  'Цель: ${details.habit.targetCount} раз ${details.habit.targetPeriod.label}',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -162,7 +210,7 @@ class _HabitDetailsScreenState extends ConsumerState<HabitDetailsScreen> {
                 icon: const Icon(Icons.chevron_left),
               ),
               Text(
-                DateFormat.yMMMM().format(_currentMonth),
+                DateFormat.yMMMM('ru_RU').format(_currentMonth),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
@@ -190,7 +238,21 @@ class _HabitDetailsScreenState extends ConsumerState<HabitDetailsScreen> {
                   );
             },
           ),
-          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsTab(
+    BuildContext context,
+    HabitDetailsView details,
+    ColorScheme scheme,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Wrap(
             spacing: 12,
             runSpacing: 8,
@@ -208,7 +270,12 @@ class _HabitDetailsScreenState extends ConsumerState<HabitDetailsScreen> {
                 },
                 child: const Text('+'),
               ),
-              const Text('Карточки статистики'),
+              Text(
+                'Карточки статистики',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurface,
+                    ),
+              ),
             ],
           ),
           const SizedBox(height: 12),

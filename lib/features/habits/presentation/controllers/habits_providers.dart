@@ -93,6 +93,11 @@ class HabitsActions {
     _invalidate();
   }
 
+  Future<void> deleteHabit(int habitId) async {
+    await _ref.read(habitsRepositoryProvider).deleteHabit(habitId);
+    _invalidate();
+  }
+
   Future<void> toggleCompletion({
     required int habitId,
     required DateTime date,
