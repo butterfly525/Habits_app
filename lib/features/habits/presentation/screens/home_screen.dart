@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/cyberpunk_theme.dart';
 import '../../../../core/date_only.dart';
@@ -17,9 +18,14 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final habitsAsync = ref.watch(habitsWeekProvider);
     final scheme = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final topBarColor = isLight ? const Color(0xE03B2858) : Colors.transparent;
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: topBarColor,
+        surfaceTintColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         title: const Text('Мои привычки'),
         actions: const [
           ThemeModeToggleButton(),

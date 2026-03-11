@@ -71,184 +71,192 @@ class _HabitSettingsScreenState extends State<HabitSettingsScreen> {
         ],
       ),
       body: CyberpunkBackground(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextField(
-              controller: _titleController,
-              textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(
-                labelText: 'Название',
-                hintText: 'Например: Выпить воду',
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Цвет карточки',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: habitColorOptions.map((option) {
-                final isSelected = option.value == _selectedColorValue;
-                return InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    setState(() {
-                      _selectedColorValue = option.value;
-                    });
-                  },
-                  child: Container(
-                    width: 96,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: habitColorFromValue(option.value).withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected
-                            ? habitColorFromValue(option.value)
-                            : Colors.grey.shade300,
-                        width: isSelected ? 2 : 1,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    TextField(
+                      controller: _titleController,
+                      textInputAction: TextInputAction.done,
+                      decoration: const InputDecoration(
+                        labelText: 'Название',
+                        hintText: 'Например: Выпить воду',
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: habitColorFromValue(option.value),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          option.name,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 24),
+                    Text(
+                      'Цвет карточки',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  ),
-                );
-              }).toList(growable: false),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Цель выполнения',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: selectedColor.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: selectedColor.withValues(alpha: 0.30)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<int>(
-                          initialValue: _targetCount,
-                          decoration: const InputDecoration(
-                            labelText: 'Количество дней',
-                          ),
-                          items: availableCounts
-                              .map(
-                                (count) => DropdownMenuItem<int>(
-                                  value: count,
-                                  child: Text('$count'),
-                                ),
-                              )
-                              .toList(growable: false),
-                          onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: habitColorOptions.map((option) {
+                        final isSelected = option.value == _selectedColorValue;
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () {
                             setState(() {
-                              _targetCount = value;
+                              _selectedColorValue = option.value;
                             });
                           },
-                        ),
+                          child: Container(
+                            width: 96,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: habitColorFromValue(option.value).withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected
+                                    ? habitColorFromValue(option.value)
+                                    : Colors.grey.shade300,
+                                width: isSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: habitColorFromValue(option.value),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  option.name,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: scheme.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(growable: false),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Цель выполнения',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: selectedColor.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: selectedColor.withValues(alpha: 0.30)),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SegmentedButton<HabitGoalPeriod>(
-                    segments: const [
-                      ButtonSegment<HabitGoalPeriod>(
-                        value: HabitGoalPeriod.week,
-                        label: Text('Неделя'),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<int>(
+                                  initialValue: _targetCount,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Количество дней',
+                                  ),
+                                  items: availableCounts
+                                      .map(
+                                        (count) => DropdownMenuItem<int>(
+                                          value: count,
+                                          child: Text('$count'),
+                                        ),
+                                      )
+                                      .toList(growable: false),
+                                  onChanged: (value) {
+                                    if (value == null) {
+                                      return;
+                                    }
+                                    setState(() {
+                                      _targetCount = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          SegmentedButton<HabitGoalPeriod>(
+                            segments: const [
+                              ButtonSegment<HabitGoalPeriod>(
+                                value: HabitGoalPeriod.week,
+                                label: Text('Неделя'),
+                              ),
+                              ButtonSegment<HabitGoalPeriod>(
+                                value: HabitGoalPeriod.month,
+                                label: Text('Месяц'),
+                              ),
+                              ButtonSegment<HabitGoalPeriod>(
+                                value: HabitGoalPeriod.year,
+                                label: Text('Год'),
+                              ),
+                            ],
+                            selected: <HabitGoalPeriod>{_targetPeriod},
+                            onSelectionChanged: (selection) {
+                              setState(() {
+                                _targetPeriod = selection.first;
+                                final maxTarget = _maxTargetFor(_targetPeriod);
+                                if (_targetCount > maxTarget) {
+                                  _targetCount = maxTarget;
+                                }
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Цель: $_targetCount раз ${_targetPeriod.label}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Максимум: ${_maxTargetFor(_targetPeriod)} раз ${_targetPeriod.label}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurface.withValues(alpha: 0.72),
+                                ),
+                          ),
+                        ],
                       ),
-                      ButtonSegment<HabitGoalPeriod>(
-                        value: HabitGoalPeriod.month,
-                        label: Text('Месяц'),
-                      ),
-                      ButtonSegment<HabitGoalPeriod>(
-                        value: HabitGoalPeriod.year,
-                        label: Text('Год'),
-                      ),
-                    ],
-                    selected: <HabitGoalPeriod>{_targetPeriod},
-                    onSelectionChanged: (selection) {
-                      setState(() {
-                        _targetPeriod = selection.first;
-                        final maxTarget = _maxTargetFor(_targetPeriod);
-                        if (_targetCount > maxTarget) {
-                          _targetCount = maxTarget;
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Цель: $_targetCount раз ${_targetPeriod.label}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Максимум: ${_maxTargetFor(_targetPeriod)} раз ${_targetPeriod.label}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurface.withValues(alpha: 0.72),
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FilledButton(
-              onPressed: _save,
-              child: Text(
-                widget.initialTitle == null ? 'Создать привычку' : 'Сохранить изменения',
-              ),
-            ),
-            if (widget.initialTitle != null) ...[
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: _delete,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                  side: BorderSide(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ],
                 ),
-                child: const Text('Удалить привычку'),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FilledButton(
+                      onPressed: _save,
+                      child: Text(
+                        widget.initialTitle == null ? 'Создать привычку' : 'Сохранить изменения',
+                      ),
+                    ),
+                    if (widget.initialTitle != null) ...[
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: _delete,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                          side: BorderSide(color: Theme.of(context).colorScheme.error),
+                        ),
+                        child: const Text('Удалить привычку'),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
